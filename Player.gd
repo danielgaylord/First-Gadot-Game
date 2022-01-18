@@ -4,15 +4,26 @@ signal hit
 # Declare member variables here. 
 export var speed = 400
 var screen_size
+var target = Vector2()
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	screen_size = get_viewport_rect().size
 	hide()
 
+func _input(event):
+	if event is InputEventScreenTouch and event.pressed:
+		target = event.position
+	if event is InputEventKey and event.pressed:
+		target = Vector2(NAN, NAN)
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	var velocity = Vector2()
+
+	if position.distance_to(target) > 10 and target != Vector2(NAN, NAN):
+		velocity = target - position
+
 	if Input.is_action_pressed("ui_right"):
 		velocity.x += 1
 	if Input.is_action_pressed("ui_left"):
@@ -21,6 +32,7 @@ func _process(delta):
 		velocity.y += 1
 	if Input.is_action_pressed("ui_up"):
 		velocity.y -= 1
+	
 	if velocity.length() > 0:
 		velocity = velocity.normalized() * speed
 		$AnimatedSprite.play()
@@ -39,6 +51,7 @@ func _process(delta):
 
 func start(pos):
 	position = pos
+	target = pos
 	show()
 	$CollisionShape2D.disabled = false
 
